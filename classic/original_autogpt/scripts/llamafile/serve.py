@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Optional
 
 import click
+from security import safe_command
 
 LLAMAFILE = Path("mistral-7b-instruct-v0.2.Q5_K_M.llamafile")
 LLAMAFILE_URL = f"https://huggingface.co/jartine/Mistral-7B-Instruct-v0.2-llamafile/resolve/main/{LLAMAFILE.name}"  # noqa
@@ -102,7 +103,7 @@ def main(
 
         if not on_windows:
             llamafile.chmod(0o755)
-            subprocess.run([llamafile, "--version"], check=True)
+            safe_command.run(subprocess.run, [llamafile, "--version"], check=True)
 
     if not on_windows:
         base_command = [f"./{llamafile}"]
@@ -112,7 +113,7 @@ def main(
         if not LLAMAFILE_EXE.is_file():
             download_file(LLAMAFILE_EXE_URL, LLAMAFILE_EXE)
             LLAMAFILE_EXE.chmod(0o755)
-            subprocess.run([f".\\{LLAMAFILE_EXE}", "--version"], check=True)
+            safe_command.run(subprocess.run, [f".\\{LLAMAFILE_EXE}", "--version"], check=True)
 
         base_command = [f".\\{LLAMAFILE_EXE}", "-m", llamafile]
 
@@ -123,8 +124,7 @@ def main(
     if force_gpu:
         base_command.extend(["-ngl", "9999"])
 
-    subprocess.run(
-        [
+    safe_command.run(subprocess.run, [
             *base_command,
             "--server",
             "--nobrowser",
