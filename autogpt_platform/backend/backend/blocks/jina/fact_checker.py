@@ -1,7 +1,5 @@
 from urllib.parse import quote
 
-import requests
-
 from backend.blocks.jina._auth import (
     JinaCredentials,
     JinaCredentialsField,
@@ -9,6 +7,7 @@ from backend.blocks.jina._auth import (
 )
 from backend.data.block import Block, BlockCategory, BlockOutput, BlockSchema
 from backend.data.model import SchemaField
+from security import safe_requests
 
 
 class FactCheckerBlock(Block):
@@ -46,7 +45,7 @@ class FactCheckerBlock(Block):
             "Authorization": f"Bearer {credentials.api_key.get_secret_value()}",
         }
 
-        response = requests.get(url, headers=headers)
+        response = safe_requests.get(url, headers=headers)
         response.raise_for_status()
         data = response.json()
 
