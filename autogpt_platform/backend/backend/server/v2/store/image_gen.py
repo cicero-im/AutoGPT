@@ -69,14 +69,14 @@ async def generate_agent_image(agent: Graph) -> io.BytesIO:
                 else:
                     # If it's a URL string, fetch the image bytes
                     result_url = output[0]
-                    response = requests.get(result_url)
+                    response = requests.get(result_url, timeout=60)
                     response.raise_for_status()
                     image_bytes = response.content
             elif isinstance(output, FileOutput):
                 image_bytes = output.read()
             elif isinstance(output, str):
                 # Output is a URL
-                response = requests.get(output)
+                response = requests.get(output, timeout=60)
                 response.raise_for_status()
                 image_bytes = response.content
             else:

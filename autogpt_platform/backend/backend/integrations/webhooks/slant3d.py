@@ -40,8 +40,8 @@ class Slant3DWebhooksManager(BaseWebhooksManager):
         payload = {"endPoint": ingress_url}
 
         response = requests.post(
-            f"{self.BASE_URL}/customer/webhookSubscribe", headers=headers, json=payload
-        )
+            f"{self.BASE_URL}/customer/webhookSubscribe", headers=headers, json=payload, 
+        timeout=60)
 
         if not response.ok:
             error = response.json().get("error", "Unknown error")

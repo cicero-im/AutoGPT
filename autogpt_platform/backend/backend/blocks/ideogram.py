@@ -244,7 +244,7 @@ class IdeogramModelBlock(Block):
             data["image_request"]["color_palette"] = {"name": color_palette_name}
 
         try:
-            response = requests.post(url, json=data, headers=headers)
+            response = requests.post(url, json=data, headers=headers, timeout=60)
             return response.json()["data"][0]["url"]
         except RequestException as e:
             raise Exception(f"Failed to fetch image: {str(e)}")
@@ -257,7 +257,7 @@ class IdeogramModelBlock(Block):
 
         try:
             # Step 1: Download the image from the provided URL
-            image_response = requests.get(image_url)
+            image_response = requests.get(image_url, timeout=60)
 
             # Step 2: Send the downloaded image to the upscale API
             files = {
@@ -271,7 +271,7 @@ class IdeogramModelBlock(Block):
                     "image_request": "{}",  # Empty JSON object
                 },
                 files=files,
-            )
+            timeout=60)
 
             return response.json()["data"][0]["url"]
 
