@@ -1,10 +1,10 @@
 import asyncio
-import random
 from datetime import datetime
 
 import prisma.enums
 from faker import Faker
 from prisma import Json, Prisma
+import secrets
 
 faker = Faker()
 
@@ -83,7 +83,7 @@ async def main():
     print(f"Inserting {NUM_USERS * MAX_GRAPHS_PER_USER} agent graphs")
     for user in users:
         for _ in range(
-            random.randint(MIN_GRAPHS_PER_USER, MAX_GRAPHS_PER_USER)
+            secrets.SystemRandom().randint(MIN_GRAPHS_PER_USER, MAX_GRAPHS_PER_USER)
         ):  # Adjust the range to create more graphs per user if desired
             graph = await db.agentgraph.create(
                 data={
@@ -102,9 +102,9 @@ async def main():
         f"Inserting {NUM_USERS * MAX_GRAPHS_PER_USER * MAX_NODES_PER_GRAPH} agent nodes"
     )
     for graph in agent_graphs:
-        num_nodes = random.randint(MIN_NODES_PER_GRAPH, MAX_NODES_PER_GRAPH)
+        num_nodes = secrets.SystemRandom().randint(MIN_NODES_PER_GRAPH, MAX_NODES_PER_GRAPH)
         for _ in range(num_nodes):  # Create 5 AgentNodes per graph
-            block = random.choice(agent_blocks)
+            block = secrets.choice(agent_blocks)
             node = await db.agentnode.create(
                 data={
                     "agentBlockId": block.id,
@@ -120,9 +120,9 @@ async def main():
     agent_presets = []
     print(f"Inserting {NUM_USERS * MAX_PRESETS_PER_USER} agent presets")
     for user in users:
-        num_presets = random.randint(MIN_PRESETS_PER_USER, MAX_PRESETS_PER_USER)
+        num_presets = secrets.SystemRandom().randint(MIN_PRESETS_PER_USER, MAX_PRESETS_PER_USER)
         for _ in range(num_presets):  # Create 1 AgentPreset per user
-            graph = random.choice(agent_graphs)
+            graph = secrets.choice(agent_graphs)
             preset = await db.agentpreset.create(
                 data={
                     "name": faker.sentence(nb_words=3),
@@ -139,20 +139,20 @@ async def main():
     user_agents = []
     print(f"Inserting {NUM_USERS * MAX_AGENTS_PER_USER} user agents")
     for user in users:
-        num_agents = random.randint(MIN_AGENTS_PER_USER, MAX_AGENTS_PER_USER)
+        num_agents = secrets.SystemRandom().randint(MIN_AGENTS_PER_USER, MAX_AGENTS_PER_USER)
         for _ in range(num_agents):  # Create 1 LibraryAgent per user
-            graph = random.choice(agent_graphs)
-            preset = random.choice(agent_presets)
+            graph = secrets.choice(agent_graphs)
+            preset = secrets.choice(agent_presets)
             user_agent = await db.libraryagent.create(
                 data={
                     "userId": user.id,
                     "agentId": graph.id,
                     "agentVersion": graph.version,
                     "agentPresetId": preset.id,
-                    "isFavorite": random.choice([True, False]),
-                    "isCreatedByUser": random.choice([True, False]),
-                    "isArchived": random.choice([True, False]),
-                    "isDeleted": random.choice([True, False]),
+                    "isFavorite": secrets.choice([True, False]),
+                    "isCreatedByUser": secrets.choice([True, False]),
+                    "isArchived": secrets.choice([True, False]),
+                    "isDeleted": secrets.choice([True, False]),
                 }
             )
             user_agents.append(user_agent)
@@ -165,15 +165,14 @@ async def main():
     )
     graph_execution_data = []
     for graph in agent_graphs:
-        user = random.choice(users)
-        num_executions = random.randint(
-            MIN_EXECUTIONS_PER_GRAPH, MAX_EXECUTIONS_PER_GRAPH
+        user = secrets.choice(users)
+        num_executions = secrets.SystemRandom().randint(MIN_EXECUTIONS_PER_GRAPH, MAX_EXECUTIONS_PER_GRAPH
         )
         for _ in range(num_executions):
             matching_presets = [p for p in agent_presets if p.agentId == graph.id]
             preset = (
-                random.choice(matching_presets)
-                if matching_presets and random.random() < 0.5
+                secrets.choice(matching_presets)
+                if matching_presets and secrets.SystemRandom().random() < 0.5
                 else None
             )
 
@@ -284,7 +283,7 @@ async def main():
                 data={
                     "userId": user.id,
                     "analyticMetric": faker.word(),
-                    "value": random.uniform(0, 100),
+                    "value": secrets.SystemRandom().uniform(0, 100),
                     "dataString": faker.word(),
                 }
             )
@@ -293,15 +292,15 @@ async def main():
     print(f"Inserting {NUM_USERS} credit transactions")
     for user in users:
         for _ in range(1):
-            block = random.choice(agent_blocks)
+            block = secrets.choice(agent_blocks)
             await db.credittransaction.create(
                 data={
                     "transactionKey": str(faker.uuid4()),
                     "userId": user.id,
-                    "amount": random.randint(1, 100),
+                    "amount": secrets.SystemRandom().randint(1, 100),
                     "type": (
                         prisma.enums.CreditTransactionType.TOP_UP
-                        if random.random() < 0.5
+                        if secrets.SystemRandom().random() < 0.5
                         else prisma.enums.CreditTransactionType.USAGE
                     ),
                     "metadata": prisma.Json({}),
@@ -328,13 +327,13 @@ async def main():
     store_listings = []
     print(f"Inserting {NUM_USERS} store listings")
     for graph in agent_graphs:
-        user = random.choice(users)
+        user = secrets.choice(users)
         listing = await db.storelisting.create(
             data={
                 "agentId": graph.id,
                 "agentVersion": graph.version,
                 "owningUserId": user.id,
-                "isApproved": random.choice([True, False]),
+                "isApproved": secrets.choice([True, False]),
             }
         )
         store_listings.append(listing)
@@ -355,9 +354,9 @@ async def main():
                 "imageUrls": [get_image() for _ in range(3)],
                 "description": faker.text(),
                 "categories": [faker.word() for _ in range(3)],
-                "isFeatured": random.choice([True, False]),
+                "isFeatured": secrets.choice([True, False]),
                 "isAvailable": True,
-                "isApproved": random.choice([True, False]),
+                "isApproved": secrets.choice([True, False]),
                 "storeListingId": listing.id,
             }
         )
@@ -368,11 +367,11 @@ async def main():
     for version in store_listing_versions:
         # Create a copy of users list and shuffle it to avoid duplicates
         available_reviewers = users.copy()
-        random.shuffle(available_reviewers)
+        secrets.SystemRandom().shuffle(available_reviewers)
 
         # Limit number of reviews to available unique reviewers
         num_reviews = min(
-            random.randint(MIN_REVIEWS_PER_VERSION, MAX_REVIEWS_PER_VERSION),
+            secrets.SystemRandom().randint(MIN_REVIEWS_PER_VERSION, MAX_REVIEWS_PER_VERSION),
             len(available_reviewers),
         )
 
@@ -382,7 +381,7 @@ async def main():
                 data={
                     "storeListingVersionId": version.id,
                     "reviewByUserId": reviewer.id,
-                    "score": random.randint(1, 5),
+                    "score": secrets.SystemRandom().randint(1, 5),
                     "comments": faker.text(),
                 }
             )
@@ -390,10 +389,9 @@ async def main():
     # Insert StoreListingSubmissions
     print(f"Inserting {NUM_USERS} store listing submissions")
     for listing in store_listings:
-        version = random.choice(store_listing_versions)
-        reviewer = random.choice(users)
-        status: prisma.enums.SubmissionStatus = random.choice(
-            [
+        version = secrets.choice(store_listing_versions)
+        reviewer = secrets.choice(users)
+        status: prisma.enums.SubmissionStatus = secrets.choice([
                 prisma.enums.SubmissionStatus.PENDING,
                 prisma.enums.SubmissionStatus.APPROVED,
                 prisma.enums.SubmissionStatus.REJECTED,

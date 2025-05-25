@@ -1,10 +1,10 @@
-import random
 from collections import defaultdict
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
 from backend.data.block import Block, BlockCategory, BlockOutput, BlockSchema
 from backend.data.model import SchemaField
+import secrets
 
 
 class SamplingMethod(str, Enum):
@@ -116,7 +116,7 @@ class DataSamplingBlock(Block):
             )
 
         if input_data.random_seed is not None:
-            random.seed(input_data.random_seed)
+            secrets.SystemRandom().seed(input_data.random_seed)
 
         data_size = len(data_to_sample)
 
@@ -128,10 +128,10 @@ class DataSamplingBlock(Block):
         indices = []
 
         if input_data.sampling_method == SamplingMethod.RANDOM:
-            indices = random.sample(range(data_size), input_data.sample_size)
+            indices = secrets.SystemRandom().sample(range(data_size), input_data.sample_size)
         elif input_data.sampling_method == SamplingMethod.SYSTEMATIC:
             step = data_size // input_data.sample_size
-            start = random.randint(0, step - 1)
+            start = secrets.SystemRandom().randint(0, step - 1)
             indices = list(range(start, data_size, step))[: input_data.sample_size]
         elif input_data.sampling_method == SamplingMethod.TOP:
             indices = list(range(input_data.sample_size))
@@ -178,7 +178,7 @@ class DataSamplingBlock(Block):
                     ] -= 1
 
             for stratum, size in stratum_sizes.items():
-                indices.extend(random.sample(strata[stratum], size))
+                indices.extend(secrets.SystemRandom().sample(strata[stratum], size))
         elif input_data.sampling_method == SamplingMethod.WEIGHTED:
             if not input_data.weight_key:
                 raise ValueError("Weight key must be provided for weighted sampling.")
@@ -209,13 +209,12 @@ class DataSamplingBlock(Block):
                     f"No valid weights found using key '{input_data.weight_key}'"
                 )
 
-            indices = random.choices(
-                range(data_size), weights=weights, k=input_data.sample_size
+            indices = secrets.SystemRandom().choices(range(data_size), weights=weights, k=input_data.sample_size
             )
         elif input_data.sampling_method == SamplingMethod.RESERVOIR:
             indices = list(range(input_data.sample_size))
             for i in range(input_data.sample_size, data_size):
-                j = random.randint(0, i)
+                j = secrets.SystemRandom().randint(0, i)
                 if j < input_data.sample_size:
                     indices[j] = i
         elif input_data.sampling_method == SamplingMethod.CLUSTER:
@@ -243,14 +242,14 @@ class DataSamplingBlock(Block):
                 available_clusters = [c for c in clusters if c not in selected_clusters]
                 if not available_clusters:
                     break
-                selected_clusters.append(random.choice(available_clusters))
+                selected_clusters.append(secrets.choice(available_clusters))
 
             for cluster in selected_clusters:
                 indices.extend(clusters[cluster])
 
             # If we have more samples than needed, randomly remove some
             if len(indices) > input_data.sample_size:
-                indices = random.sample(indices, input_data.sample_size)
+                indices = secrets.SystemRandom().sample(indices, input_data.sample_size)
         else:
             raise ValueError(f"Unknown sampling method: {input_data.sampling_method}")
 
