@@ -1,5 +1,6 @@
 import os
 import subprocess
+from security import safe_command
 
 directory = os.path.dirname(os.path.realpath(__file__))
 
@@ -10,7 +11,7 @@ TARGET_DIRS = [BACKEND_DIR, LIBS_DIR]
 
 def run(*command: str) -> None:
     print(f">>>>> Running poetry run {' '.join(command)}")
-    subprocess.run(["poetry", "run"] + list(command), cwd=directory, check=True)
+    safe_command.run(subprocess.run, ["poetry", "run"] + list(command), cwd=directory, check=True)
 
 
 def lint():

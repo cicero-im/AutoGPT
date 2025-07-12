@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import time
+from security import safe_command
 
 
 def wait_for_postgres(max_retries=5, delay=5):
@@ -36,7 +37,7 @@ def wait_for_postgres(max_retries=5, delay=5):
 
 def run_command(command, check=True):
     try:
-        subprocess.run(command, check=check)
+        safe_command.run(subprocess.run, command, check=check)
     except subprocess.CalledProcessError as e:
         print(f"Command failed: {e}")
         sys.exit(1)
@@ -64,7 +65,7 @@ def test():
     run_command(["prisma", "migrate", "dev"])
 
     # Run the tests
-    result = subprocess.run(["pytest"] + sys.argv[1:], check=False)
+    result = safe_command.run(subprocess.run, ["pytest"] + sys.argv[1:], check=False)
 
     run_command(["docker", "compose", "-f", "docker-compose.test.yaml", "down"])
 
