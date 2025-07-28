@@ -4,11 +4,11 @@ from enum import Enum
 
 import replicate
 import replicate.exceptions
-import requests
 from replicate.helpers import FileOutput
 
 from backend.data.graph import Graph
 from backend.util.settings import Settings
+from security import safe_requests
 
 logger = logging.getLogger(__name__)
 
@@ -69,14 +69,14 @@ async def generate_agent_image(agent: Graph) -> io.BytesIO:
                 else:
                     # If it's a URL string, fetch the image bytes
                     result_url = output[0]
-                    response = requests.get(result_url)
+                    response = safe_requests.get(result_url)
                     response.raise_for_status()
                     image_bytes = response.content
             elif isinstance(output, FileOutput):
                 image_bytes = output.read()
             elif isinstance(output, str):
                 # Output is a URL
-                response = requests.get(output)
+                response = safe_requests.get(output)
                 response.raise_for_status()
                 image_bytes = response.content
             else:

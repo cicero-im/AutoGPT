@@ -6,6 +6,7 @@ import requests
 
 from backend.data.model import OAuth2Credentials, ProviderName
 from backend.integrations.oauth.base import BaseOAuthHandler
+from security import safe_requests
 
 
 class TwitterOAuthHandler(BaseOAuthHandler):
@@ -102,7 +103,7 @@ class TwitterOAuthHandler(BaseOAuthHandler):
 
         params = {"user.fields": "username"}
 
-        response = requests.get(
+        response = safe_requests.get(
             f"{self.USERNAME_URL}?{urllib.parse.urlencode(params)}", headers=headers
         )
         response.raise_for_status()

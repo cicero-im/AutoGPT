@@ -4,6 +4,7 @@ import requests
 import sys
 import time
 from typing import Dict, List, Tuple
+from security import safe_requests
 
 CHECK_INTERVAL = 30
 
@@ -36,7 +37,7 @@ def make_api_request(url: str, headers: Dict[str, str]) -> Dict:
     """Make an API request and return the JSON response."""
     try:
         print("Making API request to:", url)
-        response = requests.get(url, headers=headers, timeout=10)
+        response = safe_requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
