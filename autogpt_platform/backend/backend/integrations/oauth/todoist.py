@@ -48,7 +48,7 @@ class TodoistOAuthHandler(BaseOAuthHandler):
             "redirect_uri": self.redirect_uri,
         }
 
-        response = requests.post(self.TOKEN_URL, data=data)
+        response = requests.post(self.TOKEN_URL, data=data, timeout=60)
         response.raise_for_status()
 
         tokens = response.json()
@@ -57,7 +57,7 @@ class TodoistOAuthHandler(BaseOAuthHandler):
             "https://api.todoist.com/sync/v9/sync",
             headers={"Authorization": f"Bearer {tokens['access_token']}"},
             data={"sync_token": "*", "resource_types": '["user"]'},
-        )
+        timeout=60)
         response.raise_for_status()
         user_info = response.json()
         user_email = user_info["user"].get("email")

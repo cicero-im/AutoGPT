@@ -147,7 +147,7 @@ class Requests:
             allow_redirects=allow_redirects,
             *args,
             **kwargs,
-        )
+        timeout=60)
         if self.raise_for_status:
             response.raise_for_status()
 
