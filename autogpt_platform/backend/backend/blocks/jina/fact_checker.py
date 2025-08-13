@@ -46,7 +46,7 @@ class FactCheckerBlock(Block):
             "Authorization": f"Bearer {credentials.api_key.get_secret_value()}",
         }
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=60)
         response.raise_for_status()
         data = response.json()
 

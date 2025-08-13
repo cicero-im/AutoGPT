@@ -126,7 +126,7 @@ def reddit(server_address: str):
     headers = {"Content-Type": "application/json"}
     data = test_graph.model_dump_json()
 
-    response = requests.post(url, headers=headers, data=data)
+    response = requests.post(url, headers=headers, data=data, timeout=60)
 
     graph_id = response.json()["id"]
     print(f"Graph created with ID: {graph_id}")
@@ -147,7 +147,7 @@ def populate_db(server_address: str):
     headers = {"Content-Type": "application/json"}
     data = test_graph.model_dump_json()
 
-    response = requests.post(url, headers=headers, data=data)
+    response = requests.post(url, headers=headers, data=data, timeout=60)
 
     graph_id = response.json()["id"]
 
@@ -155,7 +155,7 @@ def populate_db(server_address: str):
         execute_url = f"{server_address}/graphs/{response.json()['id']}/execute"
         text = "Hello, World!"
         input_data = {"input": text}
-        response = requests.post(execute_url, headers=headers, json=input_data)
+        response = requests.post(execute_url, headers=headers, json=input_data, timeout=60)
 
         schedule_url = f"{server_address}/graphs/{graph_id}/schedules"
         data = {
@@ -163,7 +163,7 @@ def populate_db(server_address: str):
             "cron": "*/5 * * * *",
             "input_data": {"input": "Hello, World!"},
         }
-        response = requests.post(schedule_url, headers=headers, json=data)
+        response = requests.post(schedule_url, headers=headers, json=data, timeout=60)
 
     print("Database populated with: \n- graph\n- execution\n- schedule")
 
@@ -181,14 +181,14 @@ def graph(server_address: str):
     url = f"{server_address}/graphs"
     headers = {"Content-Type": "application/json"}
     data = create_test_graph().model_dump_json()
-    response = requests.post(url, headers=headers, data=data)
+    response = requests.post(url, headers=headers, data=data, timeout=60)
 
     if response.status_code == 200:
         print(response.json()["id"])
         execute_url = f"{server_address}/graphs/{response.json()['id']}/execute"
         text = "Hello, World!"
         input_data = {"input": text}
-        response = requests.post(execute_url, headers=headers, json=input_data)
+        response = requests.post(execute_url, headers=headers, json=input_data, timeout=60)
 
     else:
         print("Failed to send graph")
@@ -207,7 +207,7 @@ def execute(graph_id: str, content: dict):
     headers = {"Content-Type": "application/json"}
 
     execute_url = f"http://0.0.0.0:8000/graphs/{graph_id}/execute"
-    requests.post(execute_url, headers=headers, json=content)
+    requests.post(execute_url, headers=headers, json=content, timeout=60)
 
 
 @test.command()

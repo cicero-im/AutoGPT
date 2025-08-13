@@ -92,15 +92,15 @@ class LlamafileTokenizer(ModelTokenizer[int]):
 
     def encode(self, text: str) -> list[int]:
         response = requests.post(
-            url=f"{self._tokenizer_base_url}/tokenize", json={"content": text}
-        )
+            url=f"{self._tokenizer_base_url}/tokenize", json={"content": text}, 
+        timeout=60)
         response.raise_for_status()
         return response.json()["tokens"]
 
     def decode(self, tokens: list[int]) -> str:
         response = requests.post(
-            url=f"{self._tokenizer_base_url}/detokenize", json={"tokens": tokens}
-        )
+            url=f"{self._tokenizer_base_url}/detokenize", json={"tokens": tokens}, 
+        timeout=60)
         response.raise_for_status()
         return response.json()["content"]
 
